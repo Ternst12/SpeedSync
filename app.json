@@ -1,0 +1,34 @@
+{
+  "expo": {
+    "name": "SpeedSync",
+    "slug": "SpeedSync",
+    "version": "1.0.6",
+    
+    "icon": "./images/CartCreations/CombineIcon.png",
+    "splash": {
+      "image": "./images/CartCreations/CombineIcon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    },
+    "updates": {
+      "fallbackToCacheTimeout": 0
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.smartAG.SpeedSync"
+    },
+    "android": {
+      "package": "com.smartAG.SpeedSync",
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#FFFFFF"
+      }
+    },
+    "web": {
+      "favicon": "./images/CartCreations/CombineIcon.png"
+    }
+  }
+}
