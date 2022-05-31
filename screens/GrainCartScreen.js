@@ -97,6 +97,15 @@ const GrainCartScreen = props => {
   }, [dispatch]);
 
   const setCartToEdit = (id, name, imageUri, distance, length, width) => {
+
+    console.log("type of = ", typeof length)
+
+    const floatDistance = parseFloat(distance)
+    const floatLength = parseFloat(length)
+    const floatWidth = parseFloat(width)
+
+    console.log("floatDistance = ", floatDistance)
+
     console.log("that was a long press");      
     Alert.alert(
               "You have choosen a Cart",

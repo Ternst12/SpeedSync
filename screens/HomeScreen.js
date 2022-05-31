@@ -21,34 +21,23 @@ const HomeScreen = props => {
     
     const selectedCart = useSelector(state => state.carts.selectedCart)
 
-    const [ipAddress, setIpAddress] = useState("10.43.2.202:9090")
+    const [ipAddress, setIpAddress] = useState("192.168.45.100:9090")
     const [ipModalVisible, setIpModalVisible] = useState(false)
     const [distanceToTractor, setDistanceToTractor] = useState("20%")
     const [cartLength, setCartLength] = useState("80%")
-
     const [speedDifference, setSpeedDifference] = useState(0)
     const [leftVision, setLeftVision] = useState(false)
     const [positionZ, setPositionZ] = useState("0%")
-    const [modalVisible, setModalVisible] = useState(false)
     const [wifiConnected, setWifiConnected] = useState(false)
     const [rosConnected, setRosConnected] = useState(false)
     const [cartName, setCartName] = useState("Default")
-    const [index, setIndex] = useState(0)
     const [playAnimation, setPlayAnimation] = useState(false)
-    const [labelText, setLabelText] = useState("Setting the Camera ...")
     const [elevatorOpacity, setElevatorOpacity] = useState(0)
     const [selectedElevatorWidth, setSelectedElevatorWidth] = useState(1.2)
-    const [noMarker, setNoMarker] = useState(true)
 
-
-    const getDataTimer = () => {
-      const test1 = setTimeout(() => {setLabelText("Getting the position data ..."); clearTimeout(test1); elevatorOpacityChange()}, 2000)
-      const test2 = setTimeout(() => {setLabelText("Calibrate velocity ..."); getData(); clearTimeout(test2)}, 4500)
-      const test3 = setTimeout(() => {setModalVisible(false); setIndex(0); setPlayAnimation(false); clearTimeout(test3) }, 6000)
-    }
   
   var opacity = 0
-  var test = 0 
+  
   
   const elevatorOpacityChange = () => {
     setInterval(() => {
@@ -61,42 +50,13 @@ const HomeScreen = props => {
     }, 300) 
   }
 
-  var test1 = null
-
-  useEffect(() => {
-    setInterval(() => {
-      if(test != test1) {
-      test1 = test
-      setNoMarker(false)
-      } else {
-        setNoMarker(false)
-      }
-    }, 1000)
-  }, [])
-
-    useEffect(() => {
-    if(index == 2) {
-      setPlayAnimation(true)
-    }
-    }, [index])
-
-    useEffect(() => {
-      console.log("ws://" + ipAddress)
-    }, [ipAddress])
-
-    useEffect(() => {
-      if(index == 2) {
-        getDataTimer()
-      }
-    }, [playAnimation])
-
   var ros = new ROSLIB.Ros();
 
 
   useEffect(() => {
       if (selectedCart) {
       console.log("SelectedCart = ", selectedCart)
-      var CartTotalLength = parseInt(selectedCart.length) + parseInt(selectedCart.distance)
+      var CartTotalLength = parseFloat(selectedCart.length) + parseFloat(selectedCart.distance)
       console.log("CartTotalLength = ", CartTotalLength)
       console.log("length = " + selectedCart.length + " distance = " + selectedCart.distance)
       setDistanceToTractor(parseFloat((selectedCart.distance / CartTotalLength) * 100) + "%")
@@ -104,7 +64,7 @@ const HomeScreen = props => {
       setSelectedElevatorWidth((parseFloat(selectedCart.width / CartTotalLength) * 100 ) + "%")
       setCartName(selectedCart.name)
       }
-     // getData();  
+      componentDidMount() 
   }, [selectedCart])
 
   const wagon_pose_sub = new ROSLIB.Topic({
@@ -126,6 +86,7 @@ const HomeScreen = props => {
       console.log("Problemer med forbindelsen = ", error)
     }
     ros.on('connection', function() {
+      getData()
       setWifiConnected(true)
       console.log("It Works :-)")
     });  
@@ -142,8 +103,10 @@ const HomeScreen = props => {
       }, 3000)
     });
     ros.on('close', function() {
+     
       console.log("its closed")
       setWifiConnected(false)
+      setRosConnected(false)
       setTimeout(() => {
         try{
           ros.connect("ws://" + ipAddress)
@@ -156,7 +119,6 @@ const HomeScreen = props => {
   };
 
   const getData = () => {
-    componentDidMount()
     var CartTotalLength = null
     if(selectedCart) {
       CartTotalLength = selectedCart.length + selectedCart.distance
@@ -178,7 +140,6 @@ const HomeScreen = props => {
 
   const getSpeedDifference = () => {
     wagon_speedDifference_sub.subscribe(function(m) {
-      test = m.header.stamp.secs
       elevatorOpacityChange()
       setPlayAnimation(true)
       setRosConnected(true)
@@ -191,6 +152,7 @@ const HomeScreen = props => {
 
   useLayoutEffect(() => {
     props.navigation.setOptions({ 
+        headerShown: false,
         headerTitle: props => <Text>Speed Sync</Text>,
         headerTitleAlign: "center",
         headerRight: () => (
@@ -222,13 +184,10 @@ const HomeScreen = props => {
           style={{width: "100%", height: "100%", alignItems: 'center', justifyContent: 'center',}} 
           colors={[Colors.fallWhite, Colors.fallGrey]} >
             {leftVision ?
-              <LeftVision elevatorOpacity={elevatorOpacity} positionZ={positionZ} speedDifference={speedDifference} setModalVisible={setModalVisible} rosConnected={rosConnected} image={image} cartLength={cartLength} distanceToTractor={distanceToTractor} elevatorWidth={selectedElevatorWidth} noMarker={noMarker}/>
+              <LeftVision setIpModalVisible={setIpModalVisible} elevatorOpacity={elevatorOpacity} positionZ={positionZ} speedDifference={speedDifference} rosConnected={rosConnected} image={image} cartLength={cartLength} distanceToTractor={distanceToTractor} elevatorWidth={selectedElevatorWidth} />
               : 
-              <RightVision elevatorOpacity={elevatorOpacity} positionZ={positionZ} speedDifference={speedDifference} setModalVisible={setModalVisible} rosConnected={rosConnected} image={image} cartLength={cartLength} distanceToTractor={distanceToTractor} elevatorWidth={selectedElevatorWidth} noMarker={noMarker}/>
+              <RightVision setIpModalVisible={setIpModalVisible} elevatorOpacity={elevatorOpacity} positionZ={positionZ} speedDifference={speedDifference}  rosConnected={rosConnected} image={image} cartLength={cartLength} distanceToTractor={distanceToTractor} elevatorWidth={selectedElevatorWidth} />
             }
-            <Modal isVisible={modalVisible} style={{alignItems: "center"}}>
-              <StartingSyncModal labelText={labelText} playAnimation={playAnimation} setModalVisible={setModalVisible} index={index} setIndex={setIndex} setLeftVision={setLeftVision} getData={getData}/>
-            </Modal>
             <Modal style={{alignItems: "center"}} isVisible={ipModalVisible}>
               <View style={{backgroundColor: Colors.fallGrey, width: Dimensions.get("screen"). width * 0.40, height: Dimensions.get("screen"). height * 0.20, justifyContent: "center", alignItems: "center"}}>
                 <TextInput value={ipAddress} onSubmitEditing={() => {setIpModalVisible(false), componentDidMount()}} onChangeText={(text) => {setIpAddress(text)}} style={{width: "80%", height: "20%", backgroundColor: Colors.fallWhite, paddingLeft: 10}} />

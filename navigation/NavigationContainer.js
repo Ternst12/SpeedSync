@@ -113,16 +113,7 @@ const HomeStack = props => {
           }}
         />
        
-        <Tab.Screen
-          name="CameraScreen"
-          component={CameraViewStack}
-          options={{
-            tabBarLabel: 'Calibration',
-            tabBarIcon: () => (
-              <Ionicons name="md-videocam-outline" color={"black"} size={25} />
-            ),
-          }}
-        />
+      
       </Tab.Navigator>
     );
   };
